@@ -66,10 +66,12 @@
 <div>
 	<div class="page-container" bind:this={list}>
 		{#each $files as file, index}
-			<div class="page">
+			<div class="page" style="background image: {undefined}">
 				<div class="label">
 					{file.name}
 				</div>
+
+				<div class="middle">+</div>
 
 				<button class="edit">
 					<div class="icon-container">
@@ -91,9 +93,9 @@
 			style="display:none;"
 			on:change={handleFileInput}
 			bind:this={fileInput}
-            accept=".jpg, .jpeg, .png, .gif, .jfif"
+			accept=".jpg, .jpeg, .png, .gif, .jfif"
 		/>
-        
+
 		<button class="page placeholder" on:click={() => fileInput.click()}>
 			<div class="icon-container">
 				<EditIcon></EditIcon>
@@ -194,5 +196,21 @@
 
 	.page .close {
 		right: -4px; /* Positions the close button on the top left corner */
+	}
+
+	.middle {
+		align-items: center;
+		background-color: #fff;
+		border-radius: 50%;
+		color: #4d4d4d;
+		display: flex;
+		height: 2.75rem;
+		justify-content: center;
+		left: 50%;
+		opacity: 0.8;
+		position: absolute;
+		top: 50%;
+		transform: translate(-50%, -50%);
+		width: 2.75rem;
 	}
 </style>
