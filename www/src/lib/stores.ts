@@ -1,3 +1,8 @@
 import { writable } from 'svelte/store';
 
-export const files = writable<File[]>([]);
+interface FileWithBlobUrl {
+    file: File;
+    blobUrl: string;
+  }
+
+export const files = writable<FileWithBlobUrl[]>([]);

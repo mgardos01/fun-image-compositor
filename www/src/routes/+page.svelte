@@ -2,6 +2,7 @@
 	import 'bulma/css/bulma.css';
 	import FullscreenFileDrop from '$lib/FullscreenFileDrop.svelte';
 	import Sortable from '$lib/Sortable.svelte';
+	import CanvasGrid from '$lib/CanvasGrid.svelte';
 </script>
 
 <div>
@@ -13,4 +14,10 @@
 	<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
 </div>
 
-<Sortable></Sortable>
+<div>
+	<Sortable></Sortable>
+</div>
+
+<!-- <div>
+	<CanvasGrid></CanvasGrid>
+</div> -->

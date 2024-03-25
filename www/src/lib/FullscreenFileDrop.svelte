@@ -1,7 +1,12 @@
 <!-- FullScreenFileDrop.svelte -->
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
-    import { files } from './stores';
+	import { files } from './stores';
+
+	interface FileWithBlobUrl {
+		file: File;
+		blobUrl: string;
+	}
 
 	let isDragging: boolean = false;
 	let dragCounter: number = 0; // Counter to manage drag enter/leave events
@@ -26,9 +31,13 @@
 
 	const handleDragEnter = (event: DragEvent) => {
 		event.preventDefault();
-		
-		if (event.dataTransfer && event.dataTransfer.types && event.dataTransfer.types.includes('Files')) {
-            dragCounter++;
+
+		if (
+			event.dataTransfer &&
+			event.dataTransfer.types &&
+			event.dataTransfer.types.includes('Files')
+		) {
+			dragCounter++;
 			isDragging = true;
 		}
 	};
@@ -48,9 +57,11 @@
 
 		const dropped_files = event.dataTransfer?.files;
 		if (dropped_files && dropped_files.length > 0) {
-            console.log('DROPPED FILES:')
-            console.log(dropped_files)
-            files.update((list) => list.concat(Array.from(dropped_files)))
+			const fileWithBlobUrls: FileWithBlobUrl[] = Array.from(dropped_files).map((file) => ({
+				file: file,
+				blobUrl: URL.createObjectURL(file)
+			}));
+			files.update((currentFiles) => currentFiles.concat([...fileWithBlobUrls]));
 		}
 	};
 </script>

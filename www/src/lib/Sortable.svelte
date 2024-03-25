@@ -2,35 +2,30 @@
 	import Sortable, { type Options } from 'sortablejs';
 	import { onMount, onDestroy } from 'svelte';
 	import { files } from './stores';
-	import EditIcon from './icons/EditIcon.svelte';
-	import CloseIcon from './icons/CloseIcon.svelte';
+	import Fa from 'svelte-fa'
+	import { faXmark, faPen, faArrowsUpDownLeftRight} from '@fortawesome/free-solid-svg-icons'
 
 	let list: HTMLElement;
 	let sortable: Sortable;
 	let fileInput: HTMLInputElement;
 
 	const removeAtIndex = (index: number) => {
-		files.update((list) => {
-			if (index < 0 || index >= list.length) {
-				// Index is out of bounds
-				console.warn(
-					`Index ${index} is out of bounds for array of length ${list.length}. No item removed.`
-				);
-			} else {
-				// Remove 1 item at index i
-				list.splice(index, 1);
-			}
-			return list;
-		});
+		files.update((currentFiles) => {
+            if (index >= 0 && index < currentFiles.length) {
+                URL.revokeObjectURL(currentFiles[index].blobUrl); // Revoke the blob URL to free up memory
+                currentFiles.splice(index, 1);
+            }
+            return currentFiles;
+        });
 	};
 
 	const sortCurrentFiles = () => {
 		files.update((list) =>
 			list.sort((a, b) => {
-				if (a.name < b.name) {
+				if (a.file.name < b.file.name) {
 					return -1;
 				}
-				if (a.name > b.name) {
+				if (a.file.name > b.file.name) {
 					return 1;
 				}
 				return 0;
@@ -55,33 +50,37 @@
 	function handleFileInput(event: Event): void {
 		const input = event.target as HTMLInputElement;
 		if (input && input.files) {
-			const fileList: FileList = input.files;
-			files.update((list) => list.concat(Array.from(fileList)));
-			// Manually reset the file input to allow re-uploading the same file
-			input.value = '';
+			const newFiles = Array.from(input.files).map(file => ({
+                file: file,
+                blobUrl: URL.createObjectURL(file)
+            }));
+            files.update(currentFiles => currentFiles.concat([...newFiles]));
+            input.value = '';
 		}
 	}
 </script>
 
 <div>
 	<div class="page-container" bind:this={list}>
-		{#each $files as file, index}
-			<div class="page" style="background image: {undefined}">
+		{#each $files as {file, blobUrl}, index}
+			<div class="page" style="background-image: url({blobUrl})">
 				<div class="label">
 					{file.name}
 				</div>
 
-				<div class="middle">+</div>
+				<div class="middle">
+					<Fa size="sm" icon={faArrowsUpDownLeftRight}></Fa>
+				</div>
 
 				<button class="edit">
 					<div class="icon-container">
-						<EditIcon></EditIcon>
+						<Fa size="sm" icon={faPen}></Fa>
 					</div>
 				</button>
 
 				<button on:click={() => removeAtIndex(index)} class="close">
 					<div class="icon-container">
-						<CloseIcon></CloseIcon>
+						<Fa size="sm" icon={faXmark}></Fa>
 					</div>
 				</button>
 			</div>
@@ -98,7 +97,7 @@
 
 		<button class="page placeholder" on:click={() => fileInput.click()}>
 			<div class="icon-container">
-				<EditIcon></EditIcon>
+				<Fa size="sm" icon={faPen}></Fa>
 			</div>
 		</button>
 	</div>
