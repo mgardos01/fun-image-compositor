@@ -33,10 +33,12 @@
 	"type": "module",
 	"dependencies": {
 		"@fortawesome/free-solid-svg-icons": "^6.5.1",
+		"@silvia-odwyer/photon": "^0.3.2",
 		"bulma": "^1.0.0",
 		"install": "^0.13.0",
 		"npm": "^10.5.0",
 		"sortablejs": "^1.15.2",
-		"svelte-fa": "^4.0.2"
+		"svelte-fa": "^4.0.2",
+		"vite-plugin-wasm": "^3.3.0"
 	}
 }

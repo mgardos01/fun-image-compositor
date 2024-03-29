@@ -2,8 +2,8 @@
 	import Sortable, { type Options } from 'sortablejs';
 	import { onMount, onDestroy } from 'svelte';
 	import { files } from './stores';
-	import Fa from 'svelte-fa'
-	import { faXmark, faPen, faArrowsUpDownLeftRight} from '@fortawesome/free-solid-svg-icons'
+	// import Fa from 'svelte-fa'
+	// import { faXmark, faPen, faArrowsUpDownLeftRight} from '@fortawesome/free-solid-svg-icons/index.js'
 
 	let list: HTMLElement;
 	let sortable: Sortable;
@@ -69,18 +69,18 @@
 				</div>
 
 				<div class="middle">
-					<Fa size="sm" icon={faArrowsUpDownLeftRight}></Fa>
+					<!-- <Fa size="sm" icon={faArrowsUpDownLeftRight}></Fa> -->
 				</div>
 
 				<button class="edit">
 					<div class="icon-container">
-						<Fa size="sm" icon={faPen}></Fa>
+						<!-- <Fa size="sm" icon={faPen}></Fa> -->
 					</div>
 				</button>
 
 				<button on:click={() => removeAtIndex(index)} class="close">
 					<div class="icon-container">
-						<Fa size="sm" icon={faXmark}></Fa>
+						<!-- <Fa size="sm" icon={faXmark}></Fa> -->
 					</div>
 				</button>
 			</div>
@@ -97,7 +97,7 @@
 
 		<button class="page placeholder" on:click={() => fileInput.click()}>
 			<div class="icon-container">
-				<Fa size="sm" icon={faPen}></Fa>
+				<!-- <Fa size="sm" icon={faPen}></Fa> -->
 			</div>
 		</button>
 	</div>
