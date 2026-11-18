@@ -1,16 +1,19 @@
 import { sveltekit } from '@sveltejs/kit/vite';
+import adapter from '@sveltejs/adapter-static';
 import { defineConfig } from 'vite';
-import wasm from 'vite-plugin-wasm';
 
 export default defineConfig({
-	plugins: [sveltekit(), wasm()],
-	build: {
-		// photon's wasm glue code uses top-level await
-		target: 'es2022'
-	},
+	plugins: [
+		sveltekit({
+			// The whole app runs in the browser, so it is built as plain static files.
+			adapter: adapter(),
+			paths: {
+				// Set by the GitHub Pages workflow, where the site is served from /<repo-name>.
+				base: (process.env.BASE_PATH ?? '') as '' | `/${string}`
+			}
+		})
+	],
 	worker: {
-		// the image-processing worker imports photon, so it needs the wasm plugin too
-		format: 'es',
-		plugins: () => [wasm()]
+		format: 'es'
 	}
 });
