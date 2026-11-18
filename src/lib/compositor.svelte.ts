@@ -16,9 +16,12 @@ class Compositor {
 
 	groups = $state<GroupResult[]>([]);
 	/** The stitched image, once every group has finished without errors. */
-	final = $state<HTMLCanvasElement | null>(null);
+	final = $state<{ blob: Blob; url: string; width: number; height: number } | null>(null);
+	/** Identifies the pages and settings of the last run, to tell when the result is out of date. */
+	lastRun = $state('');
 
 	busy = $derived(this.groups.some((group) => group.status === 'loading'));
+	done = $derived(this.groups.filter((group) => group.status !== 'loading').length);
 	errors = $derived(this.groups.filter((group) => group.status === 'error'));
 
 	#workers: Worker[] = [];
@@ -37,15 +40,21 @@ class Compositor {
 		return this.#workers;
 	}
 
+	/** A key for a set of pages and the current settings; it changes whenever a re-run would differ. */
+	key(pages: Page[]) {
+		return [this.layersPerImage, this.columns, ...pages.map((page) => page.id)].join(',');
+	}
+
 	run(pages: Page[]) {
 		const jobId = ++this.#jobId;
+		this.lastRun = this.key(pages);
 		const size = Math.max(1, Math.floor(this.layersPerImage));
 		const groups: GroupResult[] = [];
 		for (let i = 0; i < pages.length; i += size) {
 			groups.push({ status: 'loading', pages: pages.slice(i, i + size) });
 		}
 		this.groups = groups;
-		this.final = null;
+		this.#setFinal(null);
 
 		const workers = this.#pool();
 		groups.forEach((group, batchIndex) => {
@@ -61,7 +70,13 @@ class Compositor {
 	reset() {
 		this.#jobId++;
 		this.groups = [];
-		this.final = null;
+		this.lastRun = '';
+		this.#setFinal(null);
+	}
+
+	#setFinal(final: typeof this.final) {
+		if (this.final) URL.revokeObjectURL(this.final.url);
+		this.final = final;
 	}
 
 	#receive(response: CompositeResponse) {
@@ -76,6 +91,7 @@ class Compositor {
 	}
 
 	#stitch() {
+		const jobId = this.#jobId;
 		if (this.groups.length === 0 || this.errors.length > 0) return;
 		const images = this.groups.map((group) => (group as { image: ImageData }).image);
 		// Size every cell to the largest tile so differently sized tiles never overlap.
@@ -93,7 +109,15 @@ class Compositor {
 			const y = Math.floor(index / columns) * cellHeight;
 			ctx.putImageData(image, x, y);
 		});
-		this.final = canvas;
+		canvas.toBlob((blob) => {
+			if (!blob || jobId !== this.#jobId) return;
+			this.#setFinal({
+				blob,
+				url: URL.createObjectURL(blob),
+				width: canvas.width,
+				height: canvas.height
+			});
+		}, 'image/png');
 	}
 
 	destroy() {
