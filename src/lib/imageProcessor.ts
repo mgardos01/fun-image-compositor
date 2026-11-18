@@ -1,4 +1,6 @@
-import { PhotonImage } from '@silvia-odwyer/photon';
+import initPhoton, * as Photon from '@silvia-odwyer/photon';
+import type { PhotonImage } from '@silvia-odwyer/photon';
+import photonWasmUrl from '@silvia-odwyer/photon/photon_rs_bg.wasm?url';
 
 interface WorkerInputMessage {
     batchIndex: number;
@@ -9,7 +11,7 @@ self.onmessage = async (e) => {
     console.log("Worker received batch:", e.data.batchIndex);
     const batch = e.data;
     try {
-        const Photon = await import('@silvia-odwyer/photon');
+        await initPhoton({ module_or_path: photonWasmUrl });
 
         const imagesData = await Promise.all(batch.blobUrls.map((blobUrl: string) => {
             console.log(`Converting blob URL to Uint8Array: ${blobUrl}`);

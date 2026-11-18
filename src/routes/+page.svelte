@@ -1,10 +1,10 @@
 <script lang="ts">
 	import 'bulma/css/bulma.css';
-	import FullscreenFileDrop from '$lib/FullscreenFileDrop.svelte';
-	import Sortable from '$lib/Sortable.svelte';
-	import CanvasGrid from '$lib/CanvasGrid.svelte';
-	import Navbar from '$lib/Navbar.svelte';
-	import Footer from '$lib/Footer.svelte';
+	import FullscreenFileDrop from '#lib/FullscreenFileDrop.svelte';
+	import Sortable from '#lib/Sortable.svelte';
+	import CanvasGrid from '#lib/CanvasGrid.svelte';
+	import Navbar from '#lib/Navbar.svelte';
+	import Footer from '#lib/Footer.svelte';
 </script>
 
 <section class="hero is-fullheight">

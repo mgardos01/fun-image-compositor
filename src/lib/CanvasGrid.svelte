@@ -2,7 +2,7 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { writable, get } from 'svelte/store';
 	import { files, batches } from './stores';
-	import MyWorker from '$lib/imageProcessor?worker';
+	import MyWorker from '#lib/imageProcessor.ts?worker';
 	// Removed import for PhotonImage since it's not directly used here
 
 	// Define a pool of workers
