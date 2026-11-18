@@ -5,6 +5,12 @@
 	import CanvasGrid from '#lib/CanvasGrid.svelte';
 	import Navbar from '#lib/Navbar.svelte';
 	import Footer from '#lib/Footer.svelte';
+	import { pages } from '#lib/pages.svelte.ts';
+
+	function addFiles(files: File[]) {
+		const skipped = pages.add(files);
+		if (skipped.length > 0) alert(`Skipped files that aren't images: ${skipped.join(', ')}`);
+	}
 </script>
 
 <section class="hero is-fullheight">
@@ -14,23 +20,22 @@
 	<div class="hero-body is-flex-direction-column">
 		<div class="container has-text-left">
 			<div>
-				<FullscreenFileDrop></FullscreenFileDrop>
+				<FullscreenFileDrop onfiles={addFiles} />
 			</div>
-	
+
 			<div>
 				<h1>Welcome to SvelteKit</h1>
 				<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
 			</div>
-	
+
 			<div>
-				<Sortable></Sortable>
+				<Sortable onfiles={addFiles} />
 			</div>
-	
+
 			<div>
 				<CanvasGrid></CanvasGrid>
 			</div>
 		</div>
-		
 	</div>
 	<!-- <div class="hero-foot">
 		

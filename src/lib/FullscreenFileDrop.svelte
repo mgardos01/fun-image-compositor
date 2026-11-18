@@ -1,100 +1,59 @@
-<!-- FullScreenFileDrop.svelte -->
+<!-- Lets files be dropped anywhere on the window, with a full-screen overlay while dragging. -->
 <script lang="ts">
-	import { onMount, onDestroy } from 'svelte';
-	import { files } from './stores';
-
-	interface FileWithBlobUrl {
-		file: File;
-		blobUrl: string;
+	interface Props {
+		onfiles: (files: File[]) => void;
 	}
 
-	let isDragging: boolean = false;
-	let dragCounter: number = 0; // Counter to manage drag enter/leave events
+	let { onfiles }: Props = $props();
 
-	onMount(() => {
-		window.addEventListener('dragover', handleDragOver);
-		window.addEventListener('dragenter', handleDragEnter);
-		window.addEventListener('dragleave', handleDragLeave);
-		window.addEventListener('drop', handleDrop);
+	let dragDepth = $state(0);
 
-		return () => {
-			window.removeEventListener('dragover', handleDragOver);
-			window.removeEventListener('dragenter', handleDragEnter);
-			window.removeEventListener('dragleave', handleDragLeave);
-			window.removeEventListener('drop', handleDrop);
-		};
-	});
+	/** Only react to files dragged in from outside, not to thumbnails being reordered. */
+	const hasFiles = (event: DragEvent) => event.dataTransfer?.types.includes('Files') ?? false;
 
-	const handleDragOver = (event: DragEvent) => {
+	function ondragenter(event: DragEvent) {
+		if (!hasFiles(event)) return;
 		event.preventDefault();
-	};
+		dragDepth++;
+	}
 
-	const handleDragEnter = (event: DragEvent) => {
+	function ondragleave(event: DragEvent) {
+		if (!hasFiles(event)) return;
+		dragDepth = Math.max(0, dragDepth - 1);
+	}
+
+	function ondragover(event: DragEvent) {
+		if (!hasFiles(event)) return;
 		event.preventDefault();
+		if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy';
+	}
 
-		if (
-			event.dataTransfer &&
-			event.dataTransfer.types &&
-			event.dataTransfer.types.includes('Files')
-		) {
-			dragCounter++;
-			isDragging = true;
-		}
-	};
-
-	const handleDragLeave = (event: DragEvent) => {
+	function ondrop(event: DragEvent) {
+		if (!hasFiles(event)) return;
 		event.preventDefault();
-		dragCounter--;
-		if (dragCounter === 0) {
-			isDragging = false;
-		}
-	};
-
-	const handleDrop = (event: DragEvent) => {
-		event.preventDefault();
-		isDragging = false;
-		dragCounter = 0; // Reset the counter
-
-		const dropped_files = event.dataTransfer?.files;
-		if (dropped_files && dropped_files.length > 0) {
-			const fileWithBlobUrls: FileWithBlobUrl[] = Array.from(dropped_files).map((file) => ({
-				file: file,
-				blobUrl: URL.createObjectURL(file)
-			}));
-			files.update((currentFiles) => currentFiles.concat([...fileWithBlobUrls]));
-		}
-	};
+		dragDepth = 0;
+		const files = Array.from(event.dataTransfer?.files ?? []);
+		if (files.length > 0) onfiles(files);
+	}
 </script>
 
-{#if isDragging}
-	<div class="drop-zone visible">Drop files here...</div>
+<svelte:window {ondragenter} {ondragleave} {ondragover} {ondrop} />
+
+{#if dragDepth > 0}
+	<div class="drop-zone">Drop images to add them</div>
 {/if}
 
 <style>
-	:global(body) {
-		overflow: hidden;
-	}
 	.drop-zone {
-		align-items: center;
-		background: rgba(0, 0, 0, 0.75);
-		display: flex;
-		justify-content: center;
 		position: fixed;
-		top: 0;
-		right: 0;
-		bottom: 0;
-		left: 0;
-		font-size: 20px;
-		color: #fff;
+		inset: 0;
 		z-index: 10000;
-		transition:
-			opacity 0.3s,
-			visibility 0.3s;
-		visibility: hidden;
-		opacity: 0;
-	}
-	.drop-zone.visible {
-		visibility: visible;
-		opacity: 1;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: rgba(0, 0, 0, 0.75);
+		color: #fff;
+		font-size: 1.25rem;
+		pointer-events: none;
 	}
 </style>
